@@ -230,8 +230,11 @@ class AttributeSensor(RestoreEntity):
         try:
             self._state = self._template.async_render()
         except TemplateError as ex:
-            if ex.args and ex.args[0].startswith(
-                    "UndefinedError: 'None' has no attribute"):
+            if ex.args and (
+                    ex.args[0].startswith(
+                        "UndefinedError: 'None' has no attribute") or
+                    ex.args[0].startswith(
+                        "UndefinedError: 'mappingproxy object' has no attribute")):
                 # Common during HA startup - so just a warning
                 _LOGGER.warning('Could not render attribute sensor for %s,'
                                 ' the state is unknown.', self._entity)
@@ -239,13 +242,16 @@ class AttributeSensor(RestoreEntity):
             self._state = None
             _LOGGER.error('Could not attribute sensor for %s: %s',
                           self._entity, ex)
-
+            
         if self._icon_template is not None:
             try:
                 self._icon = self._icon_template.async_render()
             except TemplateError as ex:
-                if ex.args and ex.args[0].startswith(
-                        "UndefinedError: 'None' has no attribute"):
+                if ex.args and (
+                        ex.args[0].startswith(
+                            "UndefinedError: 'None' has no attribute") or
+                        ex.args[0].startswith(
+                            "UndefinedError: 'mappingproxy object' has no attribute")):
                     # Common during HA startup - so just a warning
                     _LOGGER.warning('Could not render icon template %s,'
                                     ' the state is unknown.', self._name)
